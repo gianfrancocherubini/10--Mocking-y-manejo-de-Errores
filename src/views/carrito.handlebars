@@ -1,0 +1,45 @@
+   {{>menu}}
+    <h1>Carrito de compras</h1>
+    {{#if carts.items.length}}
+        <ul>
+            {{#each carts.items}}
+                <li>
+                    <img src="{{this.product.thumbnails.[0]}}" alt="{{this.product.title}}"> 
+                    <h2>{{this.product.title}}</h2>
+                    <p>Descripción: {{this.product.description}}</p>
+                    <p>Precio: {{this.product.price}}</p>
+                    <p>Categoría: {{this.product.category}}</p>
+                    <p>Cantidad: {{this.quantity}}</p>
+                    <button onclick="eliminarProducto('{{this.product._id}}', '{{usuario.carrito}}')">Eliminar del carrito</button>
+                </li>
+            {{/each}}
+            <button onclick="realizarCompra()">Comprar</button>
+        </ul>
+
+    {{else}}
+        <p>El carrito está vacío.</p>
+    {{/if}}
+
+<br>
+
+<script>
+  const eliminarProducto=async(id, carrito)=>{
+      let resultado=await fetch("/api/carts/{{usuario.carrito}}/product/"+id,{
+      method:"delete"
+    })
+
+    if(resultado.ok){
+      const confirmacion = window.confirm('¿Estás seguro de que deseas eliminar este producto?');
+      if (confirmacion) {
+          window.alert('Tu producto se ha eliminado correctamente.');
+          let datos = await resultado.json();
+          console.log(datos);
+          location.reload();
+      }
+    }
+
+  }
+
+ 
+
+</script>
