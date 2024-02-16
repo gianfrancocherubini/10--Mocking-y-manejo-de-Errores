@@ -26,6 +26,10 @@ export class ProductsService {
     async update(productId, updatedData){
         return await this.productsDao.updateProduct(productId, updatedData)
     }
+
+    async delete(productId){
+        return await this.productsDao.deleteProduct(productId)
+    }
 }
 
 

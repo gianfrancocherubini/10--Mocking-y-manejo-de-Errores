@@ -34,13 +34,7 @@ const agregar = async (id, title, carrito) => {
     });
 
     if (resultado.ok) {
-        const confirmacion = window.confirm('¿Estás seguro de que deseas agregar este producto?');
-        if (confirmacion) {
-            window.alert('Tu producto se ha agregado correctamente al carrito');
-            let datos = await resultado.json();
-            console.log(datos);
-            location.reload();
-        }
+        const confirmacion = window.alert('Tu producto se ha agregado correctamente al carrito');
     }
 };
 

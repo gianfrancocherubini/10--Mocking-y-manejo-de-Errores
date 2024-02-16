@@ -55,4 +55,15 @@ export class ProductsMongoDao {
             throw error;
         }
     }
+
+    async deleteProduct (productId){
+        try {
+            const deletedProduct = await ProductEsquema.findByIdAndDelete(productId);
+            return deletedProduct;
+        } catch (error) {
+            console.log("Error al eliminar producto:", error);
+            throw error;
+        }
+
+    }
 }

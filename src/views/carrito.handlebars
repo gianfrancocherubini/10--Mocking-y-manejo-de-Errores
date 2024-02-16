@@ -13,7 +13,8 @@
                     <button onclick="eliminarProducto('{{this.product._id}}', '{{usuario.carrito}}')">Eliminar del carrito</button>
                 </li>
             {{/each}}
-            <button onclick="realizarCompra()">Comprar</button>
+            <h3>Total: {{totalCartPrice}} </h3>
+            <button onclick="realizarCompra('{{usuario.carrito}}')">Comprar</button>
         </ul>
 
     {{else}}
@@ -23,23 +24,27 @@
 <br>
 
 <script>
-  const eliminarProducto=async(id, carrito)=>{
+  const eliminarProducto = async(id, carrito)=> {
       let resultado=await fetch("/api/carts/{{usuario.carrito}}/product/"+id,{
       method:"delete"
     })
 
     if(resultado.ok){
-      const confirmacion = window.confirm('¿Estás seguro de que deseas eliminar este producto?');
-      if (confirmacion) {
-          window.alert('Tu producto se ha eliminado correctamente.');
-          let datos = await resultado.json();
-          console.log(datos);
-          location.reload();
-      }
+        alert('Tu producto se ha eliminado correctamente.');
+        location.reload();
     }
 
   }
 
- 
+  const realizarCompra = async(carrito)=> {
+    let resultado=await fetch ("/api/carts/{{usuario.carrito}}/purchase", {
+        method: "post"
+    })
+    if(resultado.ok){
+        window.alert('Tu compra ha sido realizada correctamente');
+        location.reload();
+        }
+    }
+  
 
 </script>
