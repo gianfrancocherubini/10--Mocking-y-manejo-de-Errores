@@ -1,5 +1,6 @@
-import { Router } from 'express';
 import { PerfilController } from '../controller/perfil.controller.js';
+
+import { Router } from 'express';
 import { isUsuario } from '../config/config.auten.autoriz.js';
 
 

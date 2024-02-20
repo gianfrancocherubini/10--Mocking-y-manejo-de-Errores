@@ -5,6 +5,8 @@ import { LoginController} from '../controller/login.controller.js';
 import { PerfilController } from '../controller/perfil.controller.js';
 import { LogoutController } from '../controller/logout.controller.js';
 import { auth, auth2 } from "../config/config.auten.autoriz.js";
+
+
 import { Router } from 'express';
 export const router=Router();
 

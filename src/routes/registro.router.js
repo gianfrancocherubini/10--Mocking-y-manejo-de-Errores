@@ -1,7 +1,9 @@
-import { Router } from 'express';
+
 import passport from 'passport';
 import { RegistroController} from '../controller/registro.controller.js';
 
+
+import { Router } from 'express';
 export const router=Router()
 
 router.get('/errorRegistro',RegistroController.registroError);

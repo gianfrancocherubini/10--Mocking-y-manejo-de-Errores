@@ -15,6 +15,7 @@ import { router as routerRegistro } from './routes/registro.router.js';
 import { router as routerLogin } from './routes/login.router.js';
 import { router as routerPerfil } from './routes/perfil.router.js';
 import { router as vistasRouter } from './routes/vistas.router.js';
+import { router as routerMock } from './routes/mocking.router.js';
 
 
 const PORT = config.PORT;
@@ -48,16 +49,17 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(cookieParser());
 
-app.use('/', vistasRouter)
+app.use('/', vistasRouter);
 app.use('/api/products', routerProducts);
-app.use('/api/carts', routerCarrito)
-app.use('/api/registro', routerRegistro)
-app.use('/api/perfil', routerPerfil)
-app.use('/api/login', routerLogin)
+app.use('/api/carts', routerCarrito);
+app.use('/api/registro', routerRegistro);
+app.use('/api/perfil', routerPerfil);
+app.use('/api/login', routerLogin);
+app.use('/mockingproducts', routerMock);
 
 
 
-const connectToDatabase = async () => {
+async function connectToDatabase() {
     try {
         // se usan las variables de entorno
         await mongoose.connect(config.MONGO_URL, { dbName: config.DBNAME });
@@ -65,7 +67,7 @@ const connectToDatabase = async () => {
     } catch (error) {
         console.log(error.message);
     }
-};
+}
 
 connectToDatabase();
 

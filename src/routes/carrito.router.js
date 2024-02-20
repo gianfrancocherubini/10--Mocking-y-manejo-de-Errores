@@ -1,6 +1,8 @@
-import { Router } from 'express';
+
 import { isUsuario } from '../config/config.auten.autoriz.js';
 import { CarritoController } from '../controller/carrito.controller.js';
+
+import { Router } from 'express';
 export const router=Router()
 
 router.post('/:cid/purchase', CarritoController.purchaseTicket);
