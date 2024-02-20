@@ -1,4 +1,4 @@
-import { CustomError } from "../utils/CustomError.js";
+import { errorHandler } from "../middlewares/errorHandler.js";
 import {STATUS_CODES,ERRORES_INTERNOS } from "../utils/tiposError.js";
 import { CustomError } from "../utils/CustomError.js";
 import { ticketMongoDao } from "../dao/ticketDao.js";
@@ -14,13 +14,19 @@ const ticketDao = new ticketMongoDao();
     static async createCart(req, res) {
         try {
             const newCart = await carritoService.createCart();
+            if(!newCart){
+                throw new CustomError(
+                    STATUS_CODES.NOT_FOUND,
+                    ERRORES_INTERNOS.DATABASE,
+                    'no se pudo crear el carrito'
+                )
+            }
             console.log('Carrito creado:', newCart);
             res.setHeader('Content-Type', 'application/json');
             res.status(201).json({ success: true, message: 'Carrito creado correctamente.', cart: newCart });
         } catch (error) {
             console.error(error);
-            res.setHeader('Content-Type', 'application/json');
-            res.status(500).json({ error: 'Error al crear el carrito.' });
+            errorHandler(error, req, res);            
         }
     }
 
@@ -29,18 +35,21 @@ const ticketDao = new ticketMongoDao();
             const cartId = req.params.cid;
             
             if (!cartId) {
-                res.setHeader('Content-Type', 'application/json');
-                res.status(400).json({ error: 'Se debe proporcionar un ID de carrito válido.' });
-                console.log('Se debe proporcionar un ID de carrito válido.');
-                return;
+                throw new CustomError(
+                    STATUS_CODES.ERROR_ARGUMENTOS,
+                    ERRORES_INTERNOS.ARGUMENTOS,
+                    'Debe aportar un id valido'
+                )
             }
             
             const cart = await carritoService.cartById(cartId);
             
             if (!cart) {
-                res.setHeader('Content-Type', 'application/json');
-                res.status(404).json({ error: 'Carrito no encontrado.' });
-                return;
+                throw new CustomError(
+                    STATUS_CODES.NOT_FOUND,
+                    ERRORES_INTERNOS.DATABASE,
+                    'No se encontro el carrito'
+                )
             }
             const items = cart.items;
 
@@ -58,8 +67,7 @@ const ticketDao = new ticketMongoDao();
             console.log('Carrito:', cart._id , 'con los items:', cart.items)
         } catch (error) {
             console.error(error);
-            res.setHeader('Content-Type', 'application/json');
-            res.status(500).json({ error: 'Error al obtener el carrito.' });
+            errorHandler(error, req, res);
         }
     }
 
@@ -71,9 +79,11 @@ const ticketDao = new ticketMongoDao();
             const quantity = req.body.quantity || 1;
         
             if (!cartId || !productId) {
-              res.setHeader('Content-Type', 'application/json');
-              res.status(400).json({ error: 'Se deben proporcionar un ID de carrito y un ID de producto válidos.' });
-              return;
+              throw new CustomError(
+                STATUS_CODES.ERROR_ARGUMENTOS,
+                ERRORES_INTERNOS.ARGUMENTOS,
+                'Se deben proporcionar id de producto y id de carrito validos'
+              )
             }
         
             const updatedCart = await carritoService.addProduct(cartId, productId, quantity);

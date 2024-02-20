@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import sessions from 'express-session';
 import mongoStore from 'connect-mongo';
 import cookieParser from 'cookie-parser';
-import __dirname from './utils/utils.js';
+import __dirname from './utils.js';
 import passport from 'passport';
 import { engine } from 'express-handlebars';
 import { config } from './config/config.commander.js';
