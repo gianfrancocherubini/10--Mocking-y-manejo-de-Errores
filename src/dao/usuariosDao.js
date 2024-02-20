@@ -2,36 +2,6 @@ import { UsuariosModelo } from "./models/usuarios.model.js";
 
 export class UsuariosMongoDao {
 
-    async getUsuarios(usuarioId) {
-        try {
-            const usuarios = await UsuariosModelo.findById({ _id: usuarioId, rol: "usuario" });
-            return usuarios;
-        } catch (error) {
-            console.log("Error al obttener el usuario por id,", error);
-            throw error;
-        }
-    }
-
-    async getUsuarioAdmin(adminId) {
-        try {
-            const administrador = await UsuariosModelo.findById({ _id: adminId, rol: "administrador" });
-            return administrador;
-        } catch (error) {
-            console.log("Error al obtener administrador,", error);
-            throw error;
-        }
-    }
-
-    async getTodosUsuarios() {
-        try {
-            const todosUsuarios = await UsuariosModelo.find().lean();
-            return todosUsuarios;
-        } catch (error) {
-            console.log("Error al obtener todos los usuarios,", error);
-            throw error;
-        }
-    }
-
     async getUsuarioByEmail(email){
         try {
             let existe=await UsuariosModelo.findOne({email})
@@ -47,7 +17,7 @@ export class UsuariosMongoDao {
             let usuario=await UsuariosModelo.findOne({id})
             return usuario;
         }catch(error){
-            console.log("Error al obtener el usuario por email,", error);
+            console.log("Error al obtener el usuario por id,", error);
             throw error;
         }
     }

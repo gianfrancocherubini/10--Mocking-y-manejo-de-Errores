@@ -1,5 +1,6 @@
-// import { CarritoMongoDao } from "../dao/carritoDao.js";
-// const cm = new CarritoMongoDao();
+import { CustomError } from "../utils/CustomError.js";
+import {STATUS_CODES,ERRORES_INTERNOS } from "../utils/tiposError.js";
+import { CustomError } from "../utils/CustomError.js";
 import { ticketMongoDao } from "../dao/ticketDao.js";
 import { CarritoService } from "../repository/carrito.service.js";
 import { ProductsService } from "../repository/products.service.js";

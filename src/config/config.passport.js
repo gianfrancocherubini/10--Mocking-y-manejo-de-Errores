@@ -1,7 +1,7 @@
 import passport from 'passport'
 import local from 'passport-local'
 import github from 'passport-github2'
-import { creaHash, validaPassword } from '../utils.js'
+import { creaHash, validaPassword } from '../utils/utils.js'
 import { UsuariosMongoDao } from '../dao/usuariosDao.js'
 import { CarritoMongoDao } from '../dao/carritoDao.js'
 

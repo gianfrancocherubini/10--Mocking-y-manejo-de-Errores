@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import sessions from 'express-session';
 import mongoStore from 'connect-mongo';
 import cookieParser from 'cookie-parser';
-import __dirname from './utils.js';
+import __dirname from './utils/utils.js';
 import passport from 'passport';
 import { engine } from 'express-handlebars';
 import { config } from './config/config.commander.js';
@@ -16,6 +16,7 @@ import { router as routerLogin } from './routes/login.router.js';
 import { router as routerPerfil } from './routes/perfil.router.js';
 import { router as vistasRouter } from './routes/vistas.router.js';
 import { router as routerMock } from './routes/mocking.router.js';
+import { errorHandler } from './middlewares/errorHandler.js';
 
 
 const PORT = config.PORT;
@@ -56,7 +57,7 @@ app.use('/api/registro', routerRegistro);
 app.use('/api/perfil', routerPerfil);
 app.use('/api/login', routerLogin);
 app.use('/mockingproducts', routerMock);
-
+app.use(errorHandler);
 
 
 async function connectToDatabase() {

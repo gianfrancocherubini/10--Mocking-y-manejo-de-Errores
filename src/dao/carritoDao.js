@@ -9,7 +9,7 @@ export class CarritoMongoDao {
             await newCart.save();
             return newCart;
         } catch (error) {
-            console.log("Error al crear un carrito vacío:", error);
+            console.log("Error al crear un carrito:", error);
             throw error;
         }
     }
@@ -68,9 +68,7 @@ export class CarritoMongoDao {
             if (existingItemIndex !== -1) {
                 // Elimina el producto del array de items
                 cart.items.splice(existingItemIndex, 1);
-            } else {
-                console.log('Producto no encontrado en el carrito.');
-            }
+            } 
 
             // Llama a save para aplicar los cambios en la base de datos
             await cart.save();
