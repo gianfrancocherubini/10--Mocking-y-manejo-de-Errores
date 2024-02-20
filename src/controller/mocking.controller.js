@@ -14,7 +14,6 @@ export class MockingController {
             }
 
             const productos = generateMockedProducts(cantidad);
-            console.log(productos);
             res.setHeader('Content-Type', 'application/json');
             return res.status(200).json({ payload: productos });
         } catch (error) {
