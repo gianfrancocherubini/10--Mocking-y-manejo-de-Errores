@@ -1,6 +1,7 @@
 import validUrl from 'valid-url'
-// import { ProductsMongoDao } from "../dao/productsDao.js";
-// const productsDao = new ProductsMongoDao();
+import { errorHandler } from "../middlewares/errorHandler.js";
+import {STATUS_CODES,ERRORES_INTERNOS } from "../utils/tiposError.js";
+import { CustomError } from "../utils/CustomError.js";
 import { ProductsService } from '../repository/products.service.js';
 const productsService = new ProductsService();
 
@@ -15,8 +16,16 @@ export class ProductsController{
             if (category) {
                 query.category = category;
             }
+            
     
             const products = await productsService.getProducts(query);
+            if(!products){
+                throw new CustomError(
+                    STATUS_CODES.NOT_FOUND,
+                    ERRORES_INTERNOS.DATABASE,
+                    'No se pueden obtener los productos'
+                )
+            }
     
             res.setHeader('Content-Type', 'text/html');
             res.status(200).render('home', {
@@ -25,10 +34,9 @@ export class ProductsController{
                 currentCategory: category, 
             });
     
-        } catch (err) {
-            console.error(err);
-            res.setHeader('Content-Type', 'application/json');
-            res.status(500).json({ error: 'Error al obtener productos' });
+        } catch (error) {
+            console.error(error);
+            errorHandler(error, req, res); 
         }
     }
 
@@ -39,8 +47,11 @@ export class ProductsController{
     
             for (const field of requiredFields) {
                 if (!newProductData[field]) {
-                    res.setHeader('Content-Type', 'application/json');
-                    return res.status(400).json({ error: `El campo '${field}' es obligatorio.` });
+                    throw new CustomError (
+                        STATUS_CODES.ERROR_ARGUMENTOS,
+                        ERRORES_INTERNOS.ARGUMENTOS,
+                        `el campo ${field} es obligatorio`
+                    )
                 }
             }
     
@@ -48,15 +59,20 @@ export class ProductsController{
             const validThumbnails = newProductData.thumbnails.every(url => validUrl.isUri(url));
     
             if (!validThumbnails) {
-                res.setHeader('Content-Type', 'application/json');
-                return res.status(400).json({ error: 'La URL de la imagen no es válida.' });
+                throw new CustomError(
+                    STATUS_CODES.ERROR_ARGUMENTOS,
+                    ERRORES_INTERNOS.ARGUMENTOS,
+                    'Se debe establecer una Url valida para las imagenes'
+                )
             }
             const existingProduct = await productsService.getProductByCode(newProductData.code);
-            
 
             if (existingProduct) {
-                res.setHeader('Content-Type', 'application/json');
-                return res.status(400).json({ error: `Ya existe un producto con el código '${newProductData.code}'.` });
+                throw new CustomError(
+                    STATUS_CODES.ERROR_ARGUMENTOS,
+                    ERRORES_INTERNOS.ARGUMENTOS,
+                    'Ya existe el producto con el codigo proporcionado'
+                )
             }
             
     
@@ -66,26 +82,38 @@ export class ProductsController{
             return res.status(201).json({ success: true, message: 'Producto agregado correctamente.', newProductData });
         } catch (error) {
             console.error(error);
-            res.setHeader('Content-Type', 'application/json');
-            return res.status(500).json({ error: 'Error al agregar el producto.' });
+            errorHandler(error, req, res);
         }
     }
         static async updateProduct (req,res){
         try {
             const productId = req.params.pid;
+            if(!productId){
+                throw new CustomError(
+                    STATUS_CODES.ERROR_ARGUMENTOS,
+                    ERRORES_INTERNOS.ARGUMENTOS,
+                    'Debe ser un id valido del producto'
+                )
+            }
     
             // Buscar el producto existente por _id
             const existingProduct = await productsService.getProductById(productId)
     
             if (!existingProduct) {
-                res.setHeader('Content-Type', 'application/json');
-                return res.status(404).json({ error: 'Producto no encontrado.' });
+                throw new CustomError(
+                    STATUS_CODES.ERROR_ARGUMENTOS,
+                    ERRORES_INTERNOS.ARGUMENTOS,
+                    'Producto no encontrado'
+                )
             }
     
             // Verificar si la propiedad _id está presente en el cuerpo de la solicitud
             if ('_id' in req.body) {
-                res.setHeader('Content-Type', 'application/json');
-                return res.status(400).json({ error: 'No se puede modificar la propiedad _id.' });
+                throw new CustomError(
+                    STATUS_CODES.ERROR_ARGUMENTOS,
+                    ERRORES_INTERNOS.ARGUMENTOS,
+                    'No puede modificarse el id del producto'
+                )
             }
     
             // Actualizar el producto utilizando findByIdAndUpdate
@@ -96,13 +124,15 @@ export class ProductsController{
                 res.setHeader('Content-Type', 'application/json');
                 return res.status(200).json({ success: true, message: 'Modificación realizada.' });
             } else {
-                res.setHeader('Content-Type', 'application/json');
-                return res.status(400).json({ error: 'No se concretó la modificación.' });
+                throw new CustomError(
+                    STATUS_CODES.ERROR_ARGUMENTOS,
+                    ERRORES_INTERNOS.ARGUMENTOS,
+                    'No se pudo modificar el producto'
+                )
             }
         } catch (error) {
             console.error(error);
-            res.setHeader('Content-Type', 'application/json');
-            return res.status(500).json({ error: 'Error al actualizar el producto.' });
+            errorHandler(error, req, res);
         }
     }
 };

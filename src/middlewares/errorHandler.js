@@ -1,12 +1,13 @@
 import { CustomError } from "../utils/CustomError.js";
 
 export const errorHandler = (error, req, res, next) => {
+    console.log(error instanceof CustomError)
     if (error instanceof CustomError) {
-        console.log(`(Error código ${error.codigoInterno}) ${error.message}. Detalle: ${error.descripcion}`);
+        console.log(`(Error código: ${error.codigoInterno}). Detalle: ${error.descripcion}`);
         res.setHeader('Content-Type', 'application/json');
         return res.status(error.codigo).json({ 
             error: {
-                message: error.message,
+                codigo: error.codigo,
                 codigoInterno: error.codigoInterno,
                 descripcion: error.descripcion
             }

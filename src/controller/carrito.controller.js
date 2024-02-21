@@ -4,6 +4,7 @@ import { CustomError } from "../utils/CustomError.js";
 import { ticketMongoDao } from "../dao/ticketDao.js";
 import { CarritoService } from "../repository/carrito.service.js";
 import { ProductsService } from "../repository/products.service.js";
+
 const productService = new ProductsService();
 const carritoService = new CarritoService();
 const ticketDao = new ticketMongoDao();
@@ -14,6 +15,7 @@ const ticketDao = new ticketMongoDao();
     static async createCart(req, res) {
         try {
             const newCart = await carritoService.createCart();
+
             if(!newCart){
                 throw new CustomError(
                     STATUS_CODES.NOT_FOUND,
@@ -87,13 +89,19 @@ const ticketDao = new ticketMongoDao();
             }
         
             const updatedCart = await carritoService.addProduct(cartId, productId, quantity);
+            if(!updatedCart){
+                throw new CustomError(
+                   STATUS_CODES.NOT_FOUND,
+                   ERRORES_INTERNOS.DATABASE,
+                   'No se pudo agregar el producto al carrito' 
+                )
+            }
             console.log(`Producto : ${productId} agregado correctamente a Carrito : ${cartId}`)
             res.setHeader('Content-Type', 'application/json');
             res.status(200).json(updatedCart);
           } catch (error) {
             console.error(error);
-            res.setHeader('Content-Type', 'application/json');
-            res.status(500).json({ error: 'Error al agregar el producto al carrito.' });
+            errorHandler(error, req, res);
           }       
     }
 
@@ -103,19 +111,28 @@ const ticketDao = new ticketMongoDao();
             const productId = req.params.pid;
     
             if (!cartId || !productId) {
-                res.setHeader('Content-Type', 'application/json');
-                res.status(400).json({ error: 'Se deben proporcionar un ID de carrito y un ID de producto válidos.' });
-                return;
-            }
+                throw new CustomError(
+                  STATUS_CODES.ERROR_ARGUMENTOS,
+                  ERRORES_INTERNOS.ARGUMENTOS,
+                  'Se deben proporcionar id de producto y id de carrito validos'
+                )
+              }
     
             const deleteProductToCart = await carritoService.deleteProduct(cartId, productId);
+            if(!deleteProductToCart){
+                throw new CustomError(
+                    STATUS_CODES.NOT_FOUND,
+                    ERRORES_INTERNOS.DATABASE,
+                    'No se pudo eliminar el producto del carrito'
+                )
+            }
             console.log(`Producto : ${productId} eliminado de ${cartId} correctamente`)
             res.setHeader('Content-Type', 'application/json');
             res.status(200).json({message: `Producto : ${productId} eliminado de ${cartId} correctamente`});
         } catch (error) {
             console.error(error);
             res.setHeader('Content-Type', 'application/json');
-            res.status(500).json({ error: 'Error al eliminar el producto del carrito.' });
+            errorHandler(error, req, res);
         }
     }
 
@@ -124,19 +141,29 @@ const ticketDao = new ticketMongoDao();
             const cartId = req.params.cid;
                 
             if (!cartId) {
-                res.setHeader('Content-Type', 'application/json');
-                res.status(400).json({ error: 'Se deben proporcionar un ID de carrito válido.' });
-                return;
+                throw new CustomError(
+                    STATUS_CODES.ERROR_ARGUMENTOS,
+                    ERRORES_INTERNOS.ARGUMENTOS,
+                    'Se debe proporcionar id de carrito valido'
+                  )
             }
     
             const deletedCart = await carritoService.cartDelete(cartId);
+
+            if(!deletedCart){
+                throw new CustomError(
+                    STATUS_CODES.NOT_FOUND,
+                    ERRORES_INTERNOS.DATABASE,
+                    'No se puedo eliminar de la base de datos el carrito'
+                )
+            }
+
             console.log(`Carrito: ${cartId} eliminado correctamente`)
             res.setHeader('Content-Type', 'application/json');
             res.status(200).json(`Carrito : ${cartId} eliminado correctamente`);
         } catch (error) {
             console.error(error);
-            res.setHeader('Content-Type', 'application/json');
-            res.status(500).json({ error: 'Error al eliminar el producto del carrito.' });
+            errorHandler(error, req, res);
         }
     }
 
@@ -147,9 +174,11 @@ const ticketDao = new ticketMongoDao();
             const cart = await carritoService.cartById(cartId);
     
             if (!cart) {
-                res.setHeader('Content-Type', 'application/json');
-                res.status(404).json({ error: 'Carrito no encontrado.' });
-                return;
+                throw new CustomError(
+                    STATUS_CODES.NOT_FOUND,
+                    ERRORES_INTERNOS.DATABASE,
+                    'No se encuentra carrito con id proporcionado'
+                )
             }
     
             const productsCarts = cart.items.slice();
@@ -173,6 +202,13 @@ const ticketDao = new ticketMongoDao();
             totalAmount = totalAmount.toFixed(2); 
     
             const ticket = await ticketDao.creaTicket(usuario.email, totalAmount);
+            if (!ticket){
+                throw new CustomError(
+                    STATUS_CODES.NOT_FOUND,
+                    ERRORES_INTERNOS.DATABASE,
+                    'No se pudo generar el ticket de compra'
+                )
+            }
     
             const ticketDetails = {
                 purchaser: usuario.email,
@@ -191,8 +227,7 @@ const ticketDao = new ticketMongoDao();
             console.log(ticketDetails);
         } catch (error) {
             console.error(error);
-            res.setHeader('Content-Type', 'application/json');
-            res.status(500).json({ error: 'Error al generar ticket.' });
+            errorHandler(error, req, res);
         }
     }
 

@@ -1,5 +1,8 @@
+import { STATES } from "mongoose";
 import { enviarWs } from "../config/config.whatsApp.js";
-
+import { errorHandler } from "../middlewares/errorHandler.js";
+import { CustomError } from "../utils/CustomError.js";
+import { ERRORES_INTERNOS, STATUS_CODES } from "../utils/tiposError.js";
 
 export class PerfilController {
     constructor(){}
@@ -18,13 +21,19 @@ export class PerfilController {
         try {
             let usuario = req.session.usuario;
             let mensajeEnviado= await enviarWs(consulta);
+            if(!mensajeEnviado){
+                throw new CustomError(
+                    STATUS_CODES.ERROR_ARGUMENTOS,
+                    ERRORES_INTERNOS.ARGUMENTOS,
+                    'No se pudo realizar la consulta'
+                )
+            }
             console.log(mensajeEnviado)
             res.setHeader('Content-Type', 'text/html');
             res.status(201).render('perfil',{ mensajeEnviado, usuario, login: true });
         } catch (error) {
             console.error('Error al enviar el mensaje de WhatsApp:', error);
-            res.setHeader('Content-Type', 'text/html');
-            res.status(500).send("Error al enviar la consulta. Por favor, inténtalo de nuevo más tarde.");
+            errorHandler(error, req, res);
         }
     }
 }
